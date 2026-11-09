@@ -26,7 +26,7 @@ jobs:
       - name: Build Explorer extension
         shell: cmd
         run: cl /nologo /LD /EHsc /std:c++17 shell\UltraArchiverShell.cpp /link /OUT:dist\UltraArchiverShell.dll ole32.lib shell32.lib advapi32.lib user32.lib
-      - name: Build custom installer
+      - name: Generate installer branding\n        shell: pwsh\n        run: .\\assets\\generate-brand.ps1\n      - name: Build custom installer
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force installer-output | Out-Null
