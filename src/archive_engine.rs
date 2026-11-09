@@ -77,3 +77,25 @@ pub fn extract(src:&Path,dest:&Path)->Result<u64,String>{
  else if ext=="tar"{let f=File::open(src).map_err(|e|e.to_string())?;let mut a=tar::Archive::new(f);a.unpack(dest).map_err(|e|e.to_string())?;Ok(0)}
  else{Err("Підтримуються ZIP, TAR, TAR.GZ і UltraPack (.uap)".into())}
 }
+
+#[cfg(test)]
+mod tests {
+ use super::*;
+ #[test]
+ fn ultrapack_round_trip_and_deduplicates() {
+  let root=std::env::temp_dir().join(format!("ua-ultrapack-test-{}",std::process::id()));
+  let _=fs::remove_dir_all(&root);fs::create_dir_all(&root).unwrap();
+  let data=vec![b'A';256*1024];
+  let a=root.join("first.bin");let b=root.join("second.bin");
+  fs::write(&a,&data).unwrap();fs::write(&b,&data).unwrap();
+  let archive=root.join("test.uap");
+  let (input,packed)=create(&[a.clone(),b.clone()],&archive,"uap",12,|_,_|{}).unwrap();
+  assert_eq!(input,(data.len()*2) as u64);
+  assert!(packed<input,"duplicate files should be stored once");
+  let dest=root.join("unpacked");let extracted=extract(&archive,&dest).unwrap();
+  assert_eq!(extracted,input);
+  assert_eq!(fs::read(dest.join("first.bin")).unwrap(),data);
+  assert_eq!(fs::read(dest.join("second.bin")).unwrap(),data);
+  let _=fs::remove_dir_all(&root);
+ }
+}
