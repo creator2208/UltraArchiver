@@ -1,28 +1,20 @@
-# UltraArchiver 2.3
+# UltraArchiver 2.4
 
-Native Windows 10/11 x64 archive manager written in Rust with a C++ Windows Explorer shell extension.
+Modern Windows 10/11 archive manager built with Rust and C++.
 
 ## Features
-- Dark desktop interface with working Home, Archive, Extract and Settings pages.
-- Embedded UltraArchiver brand mark and executable icon.
-- Built-in ZIP, TAR and TAR.GZ create/extract engine.
-- ZIP compression level 0–9, byte progress and input/output size report.
-- Drag and drop files into the archive page.
-- Standalone custom Rust/egui graphical installer (no Inno Setup).
-- Optional desktop shortcut and Explorer context-menu registration.
+- Windows 11-inspired dark interface with animated UltraArchiver branding.
+- Built-in ZIP, TAR and TAR.GZ support.
+- **UltraPack (.uap)**: custom lossless container using Zstandard compression, BLAKE3 content hashes and duplicate-file elimination.
+- Custom native GUI installer and optional Windows Explorer context menu integration.
+- Drag-and-drop file selection and archive progress reporting.
+
+## UltraPack notes
+UltraPack tests each file with Zstandard and stores the original bytes when compression would make it larger. Identical files are stored once and referenced from the archive table. This can reduce archive size for collections with duplicate files. It cannot guarantee additional compression of already-compressed MP4, JPEG, MP3, ZIP or similar data; lossless compression cannot generally remove entropy that is already present.
 
 ## Build
-Use a Windows x64 MSVC Rust toolchain and Visual Studio C++ Build Tools:
+On Windows with Rust stable, MSVC Build Tools and Windows SDK:
 ```powershell
-cargo build --release --target x86_64-pc-windows-msvc --bin ultraarchiver
-New-Item -ItemType Directory -Force dist
-Copy-Item target\x86_64-pc-windows-msvc\release\ultraarchiver.exe dist\UltraArchiver.exe
-cl /nologo /LD /EHsc /std:c++17 shell\UltraArchiverShell.cpp /link /OUT:dist\UltraArchiverShell.dll ole32.lib shell32.lib advapi32.lib user32.lib
-cargo build --release --target x86_64-pc-windows-msvc --bin ultraarchiver-setup
+cargo build --release --bin ultraarchiver
 ```
-The installer embeds the app and Explorer extension from `dist`. Generate the icon resources first with `assets/generate-brand.ps1`.
-
-## Compression note
-Already-compressed media (MP4, JPEG, many game assets) usually cannot be reduced substantially by ZIP/Deflate. Compression level changes CPU/time and may change output size only slightly for such data.
-
-Build artifacts are published by the GitHub Actions workflow.
+The Windows workflow builds the GUI application, Explorer extension and custom setup executable.
