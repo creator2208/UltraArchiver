@@ -56,7 +56,7 @@ fn extract_uap(src:&Path,dest:&Path)->Result<u64,String>{
   let mut mb=[0];r.read_exact(&mut mb).map_err(|e|e.to_string())?;let reference=read_u32(&mut r).map_err(|e|e.to_string())?;let payload=read_u64(&mut r).map_err(|e|e.to_string())?;
   let out=safe_output(dest,&name)?;if let Some(p)=out.parent(){fs::create_dir_all(p).map_err(|e|e.to_string())?;}
   match mb[0]{
-   0=>{let mut o=File::create(&out).map_err(|e|e.to_string())?;io::copy(&mut r.take(payload),&mut o).map_err(|e|e.to_string())?;},
+   0=>{let mut o=File::create(&out).map_err(|e|e.to_string())?;io::copy(&mut std::io::Read::take(&mut r,payload),&mut o).map_err(|e|e.to_string())?;},
    1=>{let limited=std::io::Read::take(&mut r,payload);let mut decoder=zstd::stream::read::Decoder::new(limited).map_err(|e|e.to_string())?;let mut o=File::create(&out).map_err(|e|e.to_string())?;io::copy(&mut decoder,&mut o).map_err(|e|e.to_string())?;},
    2=>{let p=outputs.get(reference as usize).ok_or("Некоректне посилання дедуплікації")?;fs::copy(p,&out).map_err(|e|e.to_string())?;},
    _=>return Err("Невідомий тип блока UltraPack".into())
