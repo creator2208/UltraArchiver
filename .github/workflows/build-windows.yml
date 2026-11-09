@@ -17,7 +17,7 @@ jobs:
       - name: Generate application icon resources
         shell: pwsh
         run: .\assets\generate-brand.ps1
-      - name: Build Rust application
+      - name: Test Rust archive engine\n        run: cargo test --release --target x86_64-pc-windows-msvc --bin ultraarchiver\n      - name: Build Rust application
         run: cargo build --release --target x86_64-pc-windows-msvc --bin ultraarchiver
       - name: Prepare app payload
         shell: pwsh
