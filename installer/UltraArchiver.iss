@@ -17,7 +17,7 @@ UninstallDisplayIcon={app}\UltraArchiver.exe
 PrivilegesRequired=admin
 [Files]
 Source: "..\dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\shell\UltraArchiverShell.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\dist\UltraArchiverShell.dll"; DestDir: "{app}"; Flags: ignoreversion
 [Icons]
 Name: "{autoprograms}\UltraArchiver"; Filename: "{app}\UltraArchiver.exe"
 Name: "{autodesktop}\UltraArchiver"; Filename: "{app}\UltraArchiver.exe"; Tasks: desktopicon
