@@ -62,6 +62,9 @@ impl eframe::App for App {
 }
 fn main()->eframe::Result<()>{
  let _=unsafe{ua_windows_build()};
+ let mut app=App::default();
+ let mut args=std::env::args_os().skip(1);
+ if args.next().as_deref()==Some(std::ffi::OsStr::new("--add")) { app.files.extend(args.map(PathBuf::from)); }
  let mut opt=eframe::NativeOptions::default();opt.viewport=egui::ViewportBuilder::default().with_inner_size([900.0,650.0]).with_min_inner_size([760.0,520.0]);
- eframe::run_native("UltraArchiver",opt,Box::new(|cc|{let mut s=(*cc.egui_ctx.style()).clone();s.visuals=egui::Visuals::dark();cc.egui_ctx.set_style(s);Ok(Box::<App>::default())}))
+ eframe::run_native("UltraArchiver",opt,Box::new(|cc|{let mut s=(*cc.egui_ctx.style()).clone();s.visuals=egui::Visuals::dark();cc.egui_ctx.set_style(s);Ok(Box::new(app))}))
 }
