@@ -1,7 +1,7 @@
 #define AppName "UltraArchiver"
 #define AppVersion "2.0.0"
 [Setup]
-AppId={{A8BC2DF1-91EA-4F5C-9D4B-ULTRAARCHIVER20}
+AppId={{A8BC2DF1-91EA-4F5C-9D4B-2A0A2C0A2000}
 AppName={#AppName}
 AppVersion={#AppVersion}
 AppPublisher=UltraArchiver
