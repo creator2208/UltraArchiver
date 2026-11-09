@@ -1,4 +1,4 @@
-name: Build UltraArchiver 2.0
+name: Build UltraArchiver 2.1
 on:
   push:
     branches: [main]
@@ -14,9 +14,8 @@ jobs:
         with:
           targets: x86_64-pc-windows-msvc
       - uses: ilammy/msvc-dev-cmd@v1
-      - name: Install 7-Zip and Inno Setup
-        shell: pwsh
-        run: choco install 7zip.install innosetup --yes --no-progress
+      - name: Install Inno Setup
+        run: choco install innosetup --yes --no-progress
       - name: Build Rust application
         run: cargo build --release --target x86_64-pc-windows-msvc
       - name: Prepare distribution
@@ -24,8 +23,6 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force dist | Out-Null
           Copy-Item target\x86_64-pc-windows-msvc\release\ultraarchiver.exe dist\UltraArchiver.exe
-          Copy-Item "$env:ProgramFiles\7-Zip\7z.exe" dist\7z.exe
-          Copy-Item "$env:ProgramFiles\7-Zip\7z.dll" dist\7z.dll
       - name: Build Explorer extension
         shell: cmd
         run: cl /nologo /LD /EHsc /std:c++17 shell\UltraArchiverShell.cpp /link /OUT:dist\UltraArchiverShell.dll ole32.lib shell32.lib advapi32.lib user32.lib
@@ -36,7 +33,7 @@ jobs:
           & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" installer\UltraArchiver.iss
       - uses: actions/upload-artifact@v4
         with:
-          name: UltraArchiver-2.0-Windows-x64
+          name: UltraArchiver-2.1-Windows-x64
           path: |
             dist\*
             installer-output\*
