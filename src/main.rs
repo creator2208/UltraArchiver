@@ -5,7 +5,7 @@ use std::{path::PathBuf,sync::mpsc,thread,time::Duration};
 #[derive(Clone)] enum Msg{Progress(u64,u64),Done(Result<(u64,u64),String>)}
 struct App{files:Vec<PathBuf>,output:String,format:String,level:u32,status:String,busy:bool,tx:mpsc::Sender<Msg>,rx:mpsc::Receiver<Msg>,page:usize,progress:f32,processed:u64,total:u64,last_size:Option<u64>,last_saved:Option<u64>,extract_path:String}
 fn desktop()->PathBuf{std::env::var_os("USERPROFILE").map(PathBuf::from).unwrap_or_else(std::env::temp_dir).join("Desktop")}
-fn fmt_size(n:u64)->String{const U:[&str;5]=["Б","КБ","МБ","ГБ","ТБ"];let mut x=n as f64;let mut i=0;while x>=1024.0&&i<U.len()-1{x/=1024.0;i+=1;}format!("{x:.2} {}",U[i])}
+fn fmt_size(n:u64)->String{const U:[&str;5]=["Б","КБ","МБ","ГБ","ТБ"];let mut x=n as f64;let mut i=0;while x>=1024.0&&i<U.len()-1{x/=1024.0;i+=1;}format!("{x:0.2} {}",U[i])}
 fn start_create(files:Vec<PathBuf>,out:PathBuf,fmt:String,level:u32,tx:mpsc::Sender<Msg>){thread::spawn(move||{let r=archive_engine::create(&files,&out,&fmt,level,|a,b|{let _=tx.send(Msg::Progress(a,b));});let result=r.map(|(a,b)|(a,b));let _=tx.send(Msg::Done(result));});}
 fn start_extract(src:PathBuf,dest:PathBuf,tx:mpsc::Sender<Msg>){thread::spawn(move||{let r=archive_engine::extract(&src,&dest);let _=tx.send(Msg::Done(r.map(|n|(n,n))));});}
 impl Default for App{fn default()->Self{let(tx,rx)=mpsc::channel();Self{files:vec![],output:desktop().join("Archive.zip").display().to_string(),format:"zip".into(),level:9,status:"Готово до роботи".into(),busy:false,tx,rx,page:0,progress:0.,processed:0,total:0,last_size:None,last_saved:None,extract_path:desktop().display().to_string()}}}
@@ -15,15 +15,15 @@ fn logo(ui:&mut egui::Ui,size:f32){
  p.circle_filled(center,size*0.48,Color32::from_rgb(7,35,72));
  p.circle_stroke(center,size*(0.43+pulse*0.012),Stroke::new(size*0.045,Color32::from_rgb(24,112,190)));
  p.circle_stroke(center,size*0.365,Stroke::new(size*0.018,Color32::from_rgb(104,215,255)));
- let folder=Rect::from_min_size(Pos2::new(center.x-size*.19,center.y-size*.25),Vec2::new(size*.38,size*.18));
- p.rect_filled(folder,size*.035,Color32::from_rgb(82,194,255));
- p.rect_filled(Rect::from_min_size(Pos2::new(folder.left(),folder.top()-size*.055),Vec2::new(size*.18,size*.09)),size*.025,Color32::from_rgb(120,218,255));
- p.text(Pos2::new(center.x-size*.015,center.y+size*.005),egui::Align2::CENTER_CENTER,"U",egui::FontId::proportional(size*.61),Color32::WHITE);
- let x=center.x+size*.08;let y=center.y+size*.12;
- for i in 0..3{let yy=y+i as f32*size*.085;let points=vec![Pos2::new(x-size*.17,yy),Pos2::new(x+size*.11,yy-size*.055),Pos2::new(x+size*.25,yy+size*.005),Pos2::new(x-size*.03,yy+size*.065)];p.add(egui::Shape::convex_polygon(points,if i==0{Color32::from_rgb(83,198,255)}else{Color32::from_rgb(23,119,213)},Stroke::new(1.0,Color32::from_rgb(195,238,255))));}
- let arrow=vec![Pos2::new(center.x+size*.22,center.y-size*.29),Pos2::new(center.x+size*.42,center.y-size*.49),Pos2::new(center.x+size*.44,center.y-size*.34),Pos2::new(center.x+size*.49,center.y-size*.34),Pos2::new(center.x+size*.32,center.y-size*.06),Pos2::new(center.x+size*.29,center.y-size*.22)];
+ let folder=Rect::from_min_size(Pos2::new(center.x-size*0.19,center.y-size*0.25),Vec2::new(size*0.38,size*0.18));
+ p.rect_filled(folder,size*0.035,Color32::from_rgb(82,194,255));
+ p.rect_filled(Rect::from_min_size(Pos2::new(folder.left(),folder.top()-size*0.055),Vec2::new(size*0.18,size*0.09)),size*0.025,Color32::from_rgb(120,218,255));
+ p.text(Pos2::new(center.x-size*0.015,center.y+size*0.005),egui::Align2::CENTER_CENTER,"U",egui::FontId::proportional(size*0.61),Color32::WHITE);
+ let x=center.x+size*0.08;let y=center.y+size*0.12;
+ for i in 0.0.3{let yy=y+i as f32*size*0.085;let points=vec![Pos2::new(x-size*0.17,yy),Pos2::new(x+size*0.11,yy-size*0.055),Pos2::new(x+size*0.25,yy+size*0.005),Pos2::new(x-size*0.03,yy+size*0.065)];p.add(egui::Shape::convex_polygon(points,if i==0{Color32::from_rgb(83,198,255)}else{Color32::from_rgb(23,119,213)},Stroke::new(1.0,Color32::from_rgb(195,238,255))));}
+ let arrow=vec![Pos2::new(center.x+size*0.22,center.y-size*0.29),Pos2::new(center.x+size*0.42,center.y-size*0.49),Pos2::new(center.x+size*0.44,center.y-size*0.34),Pos2::new(center.x+size*0.49,center.y-size*0.34),Pos2::new(center.x+size*0.32,center.y-size*0.06),Pos2::new(center.x+size*0.29,center.y-size*0.22)];
  p.add(egui::Shape::convex_polygon(arrow,Color32::from_rgb(34,154,255),Stroke::new(1.5,Color32::from_rgb(194,235,255))));
- p.circle_stroke(center,size*(.48+pulse*.015),Stroke::new(1.0,Color32::from_rgba_unmultiplied(45,166,255,(55.0+pulse*70.0) as u8)));
+ p.circle_stroke(center,size*(0.48+pulse*0.015),Stroke::new(1.0,Color32::from_rgba_unmultiplied(45,166,255,(55.0+pulse*70.0) as u8)));
 }
 fn card(ui:&mut egui::Ui,title:&str,body:&str){egui::Frame::group(ui.style()).fill(Color32::from_rgb(25,36,54)).rounding(10.).inner_margin(12.).show(ui,|ui|{ui.label(egui::RichText::new(title).strong().color(Color32::from_rgb(100,190,255)));ui.label(body);});}
 impl eframe::App for App{
