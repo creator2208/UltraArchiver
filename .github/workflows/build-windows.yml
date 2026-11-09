@@ -1,4 +1,4 @@
-name: Build UltraArchiver 2.2
+name: Build UltraArchiver 2.3
 on:
   push:
     branches: [main]
@@ -14,14 +14,12 @@ jobs:
         with:
           targets: x86_64-pc-windows-msvc
       - uses: ilammy/msvc-dev-cmd@v1
-      - name: Install Inno Setup
-        run: choco install innosetup --yes --no-progress
-      - name: Generate installer branding
+      - name: Generate application icon resources
         shell: pwsh
         run: .\assets\generate-brand.ps1
       - name: Build Rust application
-        run: cargo build --release --target x86_64-pc-windows-msvc
-      - name: Prepare distribution
+        run: cargo build --release --target x86_64-pc-windows-msvc --bin ultraarchiver
+      - name: Prepare app payload
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force dist | Out-Null
@@ -29,15 +27,17 @@ jobs:
       - name: Build Explorer extension
         shell: cmd
         run: cl /nologo /LD /EHsc /std:c++17 shell\UltraArchiverShell.cpp /link /OUT:dist\UltraArchiverShell.dll ole32.lib shell32.lib advapi32.lib user32.lib
-      - name: Build custom installer
+      - name: Build native custom setup application
+        run: cargo build --release --target x86_64-pc-windows-msvc --bin ultraarchiver-setup
+      - name: Prepare distributable package
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force installer-output | Out-Null
-          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" installer\UltraArchiver.iss
+          New-Item -ItemType Directory -Force package | Out-Null
+          Copy-Item target\x86_64-pc-windows-msvc\release\ultraarchiver-setup.exe package\UltraArchiver-Setup.exe
+          Copy-Item dist\* package\
+          Compress-Archive -Path package\* -DestinationPath UltraArchiver-2.3-Windows-x64.zip -Force
       - uses: actions/upload-artifact@v4
         with:
-          name: UltraArchiver-2.2-Windows-x64
-          path: |
-            dist\*
-            installer-output\*
+          name: UltraArchiver-2.3-Windows-x64
+          path: UltraArchiver-2.3-Windows-x64.zip
           if-no-files-found: error
