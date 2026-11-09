@@ -23,13 +23,13 @@ fn create_uap<F:FnMut(u64,u64)>(files:&[(PathBuf,String,u64)],out:&Path,level:u3
    seen.insert(hash,index as u32);
    let temp=std::env::temp_dir().join(format!("ultraarchiver-{}-{}.zst",std::process::id(),temp_index));temp_index+=1;
    let input=File::open(path).map_err(|e|e.to_string())?;let output=File::create(&temp).map_err(|e|e.to_string())?;
-   let compressed=zstd::stream::copy_encode(input,output,(level.max(1).min(19)) as i32).map_err(|e|e.to_string())?;
+   let _copied=zstd::stream::copy_encode(input,output,(level.max(1).min(19)) as i32).map_err(|e|e.to_string())?;let compressed=fs::metadata(&temp).map_err(|e|e.to_string())?.len();
    if compressed<*size{method=1;payload_len=compressed;payload_path=Some(temp);}else{let _=fs::remove_file(&temp);payload_path=Some(path.clone());payload_len=*size;}
   }
   let nb=name.as_bytes();write_u32(&mut writer,nb.len() as u32).map_err(|e|e.to_string())?;writer.write_all(nb).map_err(|e|e.to_string())?;
   write_u64(&mut writer,*size).map_err(|e|e.to_string())?;writer.write_all(&hash).map_err(|e|e.to_string())?;writer.write_all(&[method]).map_err(|e|e.to_string())?;
   write_u32(&mut writer,reference).map_err(|e|e.to_string())?;write_u64(&mut writer,payload_len).map_err(|e|e.to_string())?;
-  if let Some(p)=payload_path{let mut f=File::open(&p).map_err(|e|e.to_string())?;io::copy(&mut f,&mut writer).map_err(|e|e.to_string())?;if p!=*path{let _=fs::remove_file(p);}}
+  if let Some(p)=payload_path{let mut f=File::open(&p).map_err(|e|e.to_string())?;io::copy(&mut f,&mut writer).map_err(|e|e.to_string())?;if method==1{let _=fs::remove_file(p);}}
  }
  writer.flush().map_err(|e|e.to_string())?;let output=writer.metadata().map_err(|e|e.to_string())?.len();Ok((total,output))
 }
@@ -57,7 +57,7 @@ fn extract_uap(src:&Path,dest:&Path)->Result<u64,String>{
   let out=safe_output(dest,&name)?;if let Some(p)=out.parent(){fs::create_dir_all(p).map_err(|e|e.to_string())?;}
   match mb[0]{
    0=>{let mut o=File::create(&out).map_err(|e|e.to_string())?;io::copy(&mut r.take(payload),&mut o).map_err(|e|e.to_string())?;},
-   1=>{let mut decoder=zstd::stream::read::Decoder::new(r.by_ref().take(payload)).map_err(|e|e.to_string())?;let mut o=File::create(&out).map_err(|e|e.to_string())?;io::copy(&mut decoder,&mut o).map_err(|e|e.to_string())?;},
+   1=>{let limited=std::io::Read::take(&mut r,payload);let mut decoder=zstd::stream::read::Decoder::new(limited).map_err(|e|e.to_string())?;let mut o=File::create(&out).map_err(|e|e.to_string())?;io::copy(&mut decoder,&mut o).map_err(|e|e.to_string())?;},
    2=>{let p=outputs.get(reference as usize).ok_or("Некоректне посилання дедуплікації")?;fs::copy(p,&out).map_err(|e|e.to_string())?;},
    _=>return Err("Невідомий тип блока UltraPack".into())
   }
