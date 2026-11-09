@@ -20,7 +20,7 @@ fn logo(ui:&mut egui::Ui,size:f32){
  p.rect_filled(Rect::from_min_size(Pos2::new(folder.left(),folder.top()-size*0.055),Vec2::new(size*0.18,size*0.09)),size*0.025,Color32::from_rgb(120,218,255));
  p.text(Pos2::new(center.x-size*0.015,center.y+size*0.005),egui::Align2::CENTER_CENTER,"U",egui::FontId::proportional(size*0.61),Color32::WHITE);
  let x=center.x+size*0.08;let y=center.y+size*0.12;
- for i in 0.0.3{let yy=y+i as f32*size*0.085;let points=vec![Pos2::new(x-size*0.17,yy),Pos2::new(x+size*0.11,yy-size*0.055),Pos2::new(x+size*0.25,yy+size*0.005),Pos2::new(x-size*0.03,yy+size*0.065)];p.add(egui::Shape::convex_polygon(points,if i==0{Color32::from_rgb(83,198,255)}else{Color32::from_rgb(23,119,213)},Stroke::new(1.0,Color32::from_rgb(195,238,255))));}
+ for i in 0..3{let yy=y+i as f32*size*0.085;let points=vec![Pos2::new(x-size*0.17,yy),Pos2::new(x+size*0.11,yy-size*0.055),Pos2::new(x+size*0.25,yy+size*0.005),Pos2::new(x-size*0.03,yy+size*0.065)];p.add(egui::Shape::convex_polygon(points,if i==0{Color32::from_rgb(83,198,255)}else{Color32::from_rgb(23,119,213)},Stroke::new(1.0,Color32::from_rgb(195,238,255))));}
  let arrow=vec![Pos2::new(center.x+size*0.22,center.y-size*0.29),Pos2::new(center.x+size*0.42,center.y-size*0.49),Pos2::new(center.x+size*0.44,center.y-size*0.34),Pos2::new(center.x+size*0.49,center.y-size*0.34),Pos2::new(center.x+size*0.32,center.y-size*0.06),Pos2::new(center.x+size*0.29,center.y-size*0.22)];
  p.add(egui::Shape::convex_polygon(arrow,Color32::from_rgb(34,154,255),Stroke::new(1.5,Color32::from_rgb(194,235,255))));
  p.circle_stroke(center,size*(0.48+pulse*0.015),Stroke::new(1.0,Color32::from_rgba_unmultiplied(45,166,255,(55.0+pulse*70.0) as u8)));
