@@ -28,7 +28,7 @@ jobs:
           Copy-Item "$env:ProgramFiles\7-Zip\7z.dll" dist\7z.dll
       - name: Build Explorer extension
         shell: cmd
-        run: cl /nologo /LD /EHsc /std:c++17 shell\UltraArchiverShell.cpp /link /OUT:dist\UltraArchiverShell.dll ole32.lib shell32.lib advapi32.lib
+        run: cl /nologo /LD /EHsc /std:c++17 shell\UltraArchiverShell.cpp /link /OUT:dist\UltraArchiverShell.dll ole32.lib shell32.lib advapi32.lib user32.lib
       - name: Build custom installer
         shell: pwsh
         run: |
