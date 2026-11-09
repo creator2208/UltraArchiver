@@ -23,7 +23,7 @@ impl eframe::App for App {
    for (i,label) in ["⌂  Головна","▣  Архіви","◫  Розпакувати","⚙  Налаштування"].iter().enumerate(){let selected=self.page==i;let b=egui::Button::new(egui::RichText::new(*label).color(if selected{egui::Color32::WHITE}else{egui::Color32::from_gray(175)})).fill(if selected{egui::Color32::from_rgb(22,91,164)}else{egui::Color32::TRANSPARENT}).rounding(egui::Rounding::same(7.0));if ui.add_sized([ui.available_width(),36.0],b).clicked(){self.page=i;}}
    ui.with_layout(egui::Layout::bottom_up(egui::Align::Min),|ui|{ui.separator();ui.label(egui::RichText::new("Версія 2.2.0 • Rust Engine").size(10.0).color(egui::Color32::from_gray(125)));});
   });
-  egui::CentralPanel::default().frame(egui::Frame::new().fill(egui::Color32::from_rgb(13,19,30)).inner_margin(18.0)).show(ctx,|ui|{
+  egui::CentralPanel::default().frame(egui::Frame::none().fill(egui::Color32::from_rgb(13,19,30)).inner_margin(18.0)).show(ctx,|ui|{
    ui.horizontal(|ui|{ui.heading(if self.page==0{"Вітаємо в UltraArchiver"}else if self.page==1{"Створення архіву"}else if self.page==2{"Розпакування"}else{"Налаштування"});ui.with_layout(egui::Layout::right_to_left(egui::Align::Center),|ui|{ui.label(egui::RichText::new("WINDOWS 10 / 11").size(10.0).color(egui::Color32::from_gray(135)));});});
    ui.label(egui::RichText::new("Архівування нового покоління — просто, швидко та надійно.").color(egui::Color32::from_gray(155)));
    ui.add_space(14.0);
